@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalender Interaktif dengan Hari Penting</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cbc;
+            --accent-color: #ff9800;
+            --light-color: #f5f7fa;
+            --dark-color: #333333;
+            --success-color: #4caf50;
+            --danger-color: #f44336;
+            --warning-color: #ffc107;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        body.dark-theme {
+            --light-color: #1a1a2e;
+            --dark-color: #e6e6e6;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+        }
+
+        body.blue-theme {
+            --primary-color: #2196f3;
+            --secondary-color: #64b5f6;
+            --accent-color: #ff9800;
+            --light-color: #e3f2fd;
+        }
+
+        body.green-theme {
+            --primary-color: #4caf50;
+            --secondary-color: #81c784;
+            --accent-color: #ff9800;
+            --light-color: #e8f5e9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-btn {
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .light-theme-btn {
+            background-color: #f5f7fa;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .dark-theme-btn {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .blue-theme-btn {
+            background-color: #2196f3;
+            color: #fff;
+        }
+
+        .green-theme-btn {
+            background-color: #4caf50;
+            color: #fff;
+        }
+
+        .theme-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .calendar-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        body.dark-theme .calendar-section,
+        body.dark-theme .important-days-section,
+        body.dark-theme .today-section,
+        body.dark-theme .holiday-info {
+            background-color: #16213e;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-header h2 {
+            color: var(--primary-color);
+        }
+
+        .month-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .nav-btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .day {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            border: 1px solid transparent;
+        }
+
+        .day:hover {
+            background-color: rgba(74, 111, 165, 0.1);
+        }
+
+        .current-month {
+            background-color: white;
+            color: var(--dark-color);
+        }
+
+        .other-month {
+            background-color: #f5f5f5;
+            color: #aaa;
+        }
+
+        body.dark-theme .current-month {
+            background-color: #16213e;
+            color: var(--dark-color);
+        }
+
+        body.dark-theme .other-month {
+            background-color: #0f3460;
+            color: #7a7a7a;
+        }
+
+        .today {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: bold;
+        }
+
+        .holiday {
+            background-color: rgba(244, 67, 54, 0.15);
+            color: var(--danger-color);
+            font-weight: bold;
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .important-days-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .section-title i {
+            font-size: 1.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom: 3px solid var(--primary-color);
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .tab:hover {
+            background-color: rgba(74, 111, 165, 0.1);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .agenda-list {
+            list-style-type: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .agenda-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background-color: rgba(74, 111, 165, 0.05);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .agenda-item:hover {
+            background-color: rgba(74, 111, 165, 0.1);
+        }
+
+        .agenda-item.completed {
+            opacity: 0.7;
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+
+        .agenda-text {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .alarm-indicator {
+            font-size: 0.9rem;
+            color: var(--accent-color);
+        }
+
+        .alarm-indicator.active {
+            color: var(--danger-color);
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .agenda-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            color: var(--secondary-color);
+        }
+
+        .add-agenda-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        input, textarea, select {
+            padding: 10px;
+            border-radius: var(--border-radius);
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .today-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            margin-top: 30px;
+            transition: var(--transition);
+        }
+
+        .today-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(74, 111, 165, 0.05);
+            border-radius: var(--border-radius);
+            margin-top: 15px;
+        }
+
+        .today-date {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .today-time {
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+        }
+
+        .holiday-info {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            margin-top: 30px;
+            transition: var(--transition);
+        }
+
+        .holiday-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .holiday-item {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--danger-color);
+            background-color: rgba(244, 67, 54, 0.05);
+        }
+
+        .holiday-date {
+            font-weight: bold;
+            color: var(--danger-color);
+            margin-bottom: 5px;
+        }
+
+        .holiday-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="light-theme">
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-calendar-alt"></i>
+                <h1>Kalender Interaktif</h1>
+            </div>
+            <div class="theme-selector">
+                <button class="theme-btn light-theme-btn" id="lightTheme"><i class="fas fa-sun"></i> Terang</button>
+                <button class="theme-btn dark-theme-btn" id="darkTheme"><i class="fas fa-moon"></i> Gelap</button>
+                <button class="theme-btn blue-theme-btn" id="blueTheme"><i class="fas fa-palette"></i> Biru</button>
+                <button class="theme-btn green-theme-btn" id="greenTheme"><i class="fas fa-palette"></i> Hijau</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Kalender -->
+            <section class="calendar-section">
+                <div class="calendar-header">
+                    <h2 id="currentMonth">Desember 2023</h2>
+                    <div class="month-nav">
+                        <button class="nav-btn" id="prevMonth"><i class="fas fa-chevron-left"></i></button>
+                        <button class="nav-btn" id="todayBtn">Hari Ini</button>
+                        <button class="nav-btn" id="nextMonth"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+                
+                <div class="weekdays">
+                    <div>Minggu</div>
+                    <div>Senin</div>
+                    <div>Selasa</div>
+                    <div>Rabu</div>
+                    <div>Kamis</div>
+                    <div>Jumat</div>
+                    <div>Sabtu</div>
+                </div>
+                
+                <div class="days" id="calendarDays">
+                    <!-- Days will be generated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Hari Penting -->
+            <section class="important-days-section">
+                <div class="section-title">
+                    <i class="fas fa-star"></i>
+                    <h2>Hari Penting</h2>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active" data-tab="agenda">Daftar Agenda</div>
+                    <div class="tab" data-tab="add">Tambah Agenda</div>
+                </div>
+                
+                <div class="tab-content active" id="agendaTab">
+                    <ul class="agenda-list" id="agendaList">
+                        <!-- Agenda items will be added here -->
+                    </ul>
+                </div>
+                
+                <div class="tab-content" id="addAgendaTab">
+                    <form class="add-agenda-form" id="addAgendaForm">
+                        <div class="form-group">
+                            <label for="agendaTitle">Judul Agenda</label>
+                            <input type="text" id="agendaTitle" placeholder="Masukkan judul agenda" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="agendaDate">Tanggal</label>
+                            <input type="date" id="agendaDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="agendaTime">Waktu (untuk alarm)</label>
+                            <input type="time" id="agendaTime">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="agendaNotes">Catatan</label>
+                            <textarea id="agendaNotes" rows="3" placeholder="Tambahkan catatan (opsional)"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="agendaAlarm">
+                                Aktifkan Alarm
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Tambah Agenda
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </div>
+
+        <!-- Hari Ini -->
+        <section class="today-section">
+            <div class="section-title">
+                <i class="fas fa-calendar-day"></i>
+                <h2>Hari Ini</h2>
+            </div>
+            
+            <div class="today-info">
+                <div class="today-date" id="todayDate">Senin, 25 Desember 2023</div>
+                <div class="today-time" id="todayTime">00:00:00</div>
+                <div id="todayHolidayInfo">Hari ini adalah hari libur: Hari Natal</div>
+            </div>
+        </section>
+
+        <!-- Informasi Hari Libur -->
+        <section class="holiday-info">
+            <div class="section-title">
+                <i class="fas fa-gift"></i>
+                <h2>Hari Libur & Peringatan</h2>
+            </div>
+            
+            <p>Tanggal berwarna merah pada kalender menandakan hari libur atau peringatan penting.</p>
+            
+            <div class="holiday-list" id="holidayList">
+                <!-- Holiday items will be added here -->
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>Kalender Interaktif &copy; 2023 - Dilengkapi dengan fitur agenda, alarm, dan penanda hari libur</p>
+        </footer>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="fas fa-bell"></i>
+        <span id="notificationText">Alarm! Agenda Anda akan segera dimulai.</span>
+    </div>
+
+    <script>
+        // Data dan state aplikasi
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        let alarms = [];
+        let agendaItems = [];
+        let selectedTheme = 'light';
+
+        // Data hari libur (contoh)
+        const holidays = [
+            { date: '2023-12-25', name: 'Hari Natal', description: 'Hari raya umat Kristiani' },
+            { date: '2024-01-01', name: 'Tahun Baru 2024', description: 'Hari pertama tahun baru' },
+            { date: '2024-02-10', name: 'Tahun Baru Imlek 2575', description: 'Hari raya Tahun Baru Imlek' },
+            { date: '2024-03-11', name: 'Hari Raya Nyepi', description: 'Hari raya umat Hindu' },
+            { date: '2024-03-31', name: 'Hari Paskah', description: 'Hari raya umat Kristiani' },
+            { date: '2024-04-10', name: 'Hari Raya Idul Fitri 1445 H', description: 'Hari raya umat Muslim' },
+            { date: '2024-05-01', name: 'Hari Buruh Internasional', description: 'Peringatan Hari Buruh' },
+            { date: '2024-05-09', name: 'Kenaikan Isa Almasih', description: 'Hari raya umat Kristiani' },
+            { date: '2024-05-23', name: 'Hari Raya Waisak 2568', description: 'Hari raya umat Buddha' },
+            { date: '2024-06-01', name: 'Hari Lahir Pancasila', description: 'Peringatan hari lahirnya Pancasila' },
+            { date: '2024-06-17', name: 'Hari Raya Idul Adha 1445 H', description: 'Hari raya umat Muslim' },
+            { date: '2024-07-07', name: 'Tahun Baru Islam 1446 H', description: 'Hari raya umat Muslim' },
+            { date: '2024-08-17', name: 'Hari Kemerdekaan RI', description: 'Peringatan kemerdekaan Indonesia' },
+            { date: '2024-12-25', name: 'Hari Natal', description: 'Hari raya umat Kristiani' },
+        ];
+
+        // Inisialisasi data agenda dari localStorage atau default
+        function initializeAgendaItems() {
+            const savedAgenda = localStorage.getItem('calendarAgenda');
+            if (savedAgenda) {
+                agendaItems = JSON.parse(savedAgenda);
+            } else {
+                // Data agenda default
+                agendaItems = [
+                    { id: 1, title: 'Rapat Tim Projek', date: '2023-12-20', time: '09:00', notes: 'Rapat membahas kemajuan proyek', alarm: true, completed: false },
+                    { id: 2, title: 'Ulang Tahun Ibu', date: '2023-12-22', time: '00:00', notes: 'Jangan lupa beli kue dan hadiah', alarm: true, completed: true },
+                    { id: 3, title: 'Beli bahan makanan mingguan', date: '2023-12-23', time: '14:00', notes: 'Sayuran, buah, dan kebutuhan dapur', alarm: false, completed: false },
+                    { id: 4, title: 'Natal Keluarga', date: '2023-12-25', time: '18:00', notes: 'Acara makan malam keluarga besar', alarm: true, completed: false },
+                    { id: 5, title: 'Meeting dengan Klien', date: '2023-12-28', time: '13:30', notes: 'Presentasi hasil akhir proyek', alarm: true, completed: false },
+                ];
+                saveAgendaToStorage();
+            }
+        }
+
+        // Simpan agenda ke localStorage
+        function saveAgendaToStorage() {
+            localStorage.setItem('calendarAgenda', JSON.stringify(agendaItems));
+        }
+
+        // Fungsi untuk membuat kalender
+        function generateCalendar(month, year) {
+            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+                              "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            
+            document.getElementById('currentMonth').textContent = `${monthNames[month]} ${year}`;
+            
+            const daysContainer = document.getElementById('calendarDays');
+            daysContainer.innerHTML = '';
+            
+            // Hari pertama bulan ini
+            const firstDay = new Date(year, month, 1);
+            // Hari terakhir bulan ini
+            const lastDay = new Date(year, month + 1, 0);
+            // Hari dalam minggu untuk hari pertama (0 = Minggu, 6 = Sabtu)
+            const firstDayIndex = firstDay.getDay();
+            // Jumlah hari dalam bulan ini
+            const daysInMonth = lastDay.getDate();
+            // Hari terakhir bulan sebelumnya
+            const prevLastDay = new Date(year, month, 0).getDate();
+            
+            // Hari-hari dari bulan sebelumnya
+            for (let i = firstDayIndex; i > 0; i--) {
+                const day = document.createElement('div');
+                day.classList.add('day', 'other-month');
+                day.textContent = prevLastDay - i + 1;
+                daysContainer.appendChild(day);
+            }
+            
+            // Hari-hari dari bulan ini
+            const today = new Date();
+            const currentDay = today.getDate();
+            const currentMonthIndex = today.getMonth();
+            const currentYearNow = today.getFullYear();
+            
+            for (let i = 1; i <= daysInMonth; i++) {
+                const day = document.createElement('div');
+                day.classList.add('day', 'current-month');
+                day.textContent = i;
+                day.dataset.date = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                
+                // Tandai hari ini
+                if (i === currentDay && month === currentMonthIndex && year === currentYearNow) {
+                    day.classList.add('today');
+                }
+                
+                // Tandai hari libur
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const isHoliday = holidays.some(holiday => holiday.date === dateStr);
+                if (isHoliday) {
+                    day.classList.add('holiday');
+                }
+                
+                // Tandai hari dengan agenda
+                const hasAgenda = agendaItems.some(item => item.date === dateStr && !item.completed);
+                if (hasAgenda) {
+                    const agendaDot = document.createElement('div');
+                    agendaDot.style.position = 'absolute';
+                    agendaDot.style.top = '5px';
+                    agendaDot.style.right = '5px';
+                    agendaDot.style.width = '8px';
+                    agendaDot.style.height = '8px';
+                    agendaDot.style.borderRadius = '50%';
+                    agendaDot.style.backgroundColor = 'var(--primary-color)';
+                    day.appendChild(agendaDot);
+                    day.style.position = 'relative';
+                }
+                
+                day.addEventListener('click', () => {
+                    showAgendaForDate(dateStr);
+                });
+                
+                daysContainer.appendChild(day);
+            }
+            
+            // Hitung sel yang tersisa untuk bulan depan
+            const totalCells = 42; // 6 minggu * 7 hari
+            const nextDays = totalCells - (firstDayIndex + daysInMonth);
+            
+            // Hari-hari dari bulan depan
+            for (let i = 1; i <= nextDays; i++) {
+                const day = document.createElement('div');
+                day.classList.add('day', 'other-month');
+                day.textContent = i;
+                daysContainer.appendChild(day);
+            }
+        }
+
+        // Fungsi untuk menampilkan agenda berdasarkan tanggal
+        function showAgendaForDate(date) {
+            const agendaForDate = agendaItems.filter(item => item.date === date);
+            const dateObj = new Date(date);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateString = dateObj.toLocaleDateString('id-ID', options);
+            
+            if (agendaForDate.length > 0) {
+                alert(`Agenda untuk ${dateString}:\n\n` + 
+                      agendaForDate.map(item => `- ${item.title}${item.time ? ` (${item.time})` : ''}`).join('\n'));
+            } else {
+                alert(`Tidak ada agenda untuk ${dateString}`);
+            }
+        }
+
+        // Fungsi untuk memperbarui tampilan agenda
+        function updateAgendaList() {
+            const agendaList = document.getElementById('agendaList');
+            agendaList.innerHTML = '';
+            
+            // Urutkan agenda: yang belum selesai duluan, lalu berdasarkan tanggal
+            const sortedAgenda = [...agendaItems].sort((a, b) => {
+                if (a.completed !== b.completed) return a.completed ? 1 : -1;
+                return new Date(a.date) - new Date(b.date);
+            });
+            
+            sortedAgenda.forEach(item => {
+                const li = document.createElement('li');
+                li.className = `agenda-item ${item.completed ? 'completed' : ''}`;
+                li.dataset.id = item.id;
+                
+                const agendaText = document.createElement('div');
+                agendaText.className = 'agenda-text';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'checkbox';
+                checkbox.checked = item.completed;
+                checkbox.addEventListener('change', () => toggleAgendaCompletion(item.id));
+                
+                const title = document.createElement('span');
+                title.textContent = item.title;
+                
+                agendaText.appendChild(checkbox);
+                agendaText.appendChild(title);
+                
+                const agendaActions = document.createElement('div');
+                agendaActions.className = 'agenda-actions';
+                
+                if (item.alarm && !item.completed) {
+                    const alarmIcon = document.createElement('i');
+                    alarmIcon.className = `fas fa-bell alarm-indicator ${isAlarmActive(item) ? 'active' : ''}`;
+                    alarmIcon.title = `Alarm aktif pada ${item.time}`;
+                    agendaActions.appendChild(alarmIcon);
+                }
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'action-btn';
+                deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                deleteBtn.title = 'Hapus agenda';
+                deleteBtn.addEventListener('click', () => deleteAgenda(item.id));
+                
+                agendaActions.appendChild(deleteBtn);
+                
+                li.appendChild(agendaText);
+                li.appendChild(agendaActions);
+                
+                // Tambahkan info tanggal dan catatan
+                const details = document.createElement('div');
+                details.style.fontSize = '0.9rem';
+                details.style.color = '#666';
+                details.style.marginTop = '5px';
+                
+                const dateObj = new Date(item.date);
+                const dateString = dateObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                details.textContent = `${dateString}${item.time ? ` • ${item.time}` : ''}`;
+                
+                if (item.notes) {
+                    const notes = document.createElement('div');
+                    notes.style.fontStyle = 'italic';
+                    notes.textContent = item.notes;
+                    details.appendChild(notes);
+                }
+                
+                li.appendChild(details);
+                agendaList.appendChild(li);
+            });
+            
+            // Perbarui tampilan hari libur
+            updateHolidayList();
+        }
+
+        // Fungsi untuk menambahkan agenda baru
+        function addAgenda(title, date, time, notes, alarm) {
+            const newId = agendaItems.length > 0 ? Math.max(...agendaItems.map(item => item.id)) + 1 : 1;
+            const newAgenda = {
+                id: newId,
+                title,
+                date,
+                time,
+                notes,
+                alarm: alarm || false,
+                completed: false
+            };
+            
+            agendaItems.push(newAgenda);
+            saveAgendaToStorage();
+            updateAgendaList();
+            generateCalendar(currentMonth, currentYear);
+            
+            // Jika alarm diaktifkan, atur alarm
+            if (alarm && time) {
+                setAgendaAlarm(newAgenda);
+            }
+        }
+
+        // Fungsi untuk menghapus agenda
+        function deleteAgenda(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus agenda ini?')) {
+                agendaItems = agendaItems.filter(item => item.id !== id);
+                saveAgendaToStorage();
+                updateAgendaList();
+                generateCalendar(currentMonth, currentYear);
+            }
+        }
+
+        // Fungsi untuk menandai agenda selesai/belum selesai
+        function toggleAgendaCompletion(id) {
+            const agendaIndex = agendaItems.findIndex(item => item.id === id);
+            if (agendaIndex !== -1) {
+                agendaItems[agendaIndex].completed = !agendaItems[agendaIndex].completed;
+                saveAgendaToStorage();
+                updateAgendaList();
+                generateCalendar(currentMonth, currentYear);
+            }
+        }
+
+        // Fungsi untuk mengatur alarm agenda
+        function setAgendaAlarm(agenda) {
+            const now = new Date();
+            const agendaDate = new Date(`${agenda.date}T${agenda.time}`);
+            
+            // Jika waktu agenda sudah lewat, jangan atur alarm
+            if (agendaDate < now) return;
+            
+            const timeUntilAlarm = agendaDate.getTime() - now.getTime();
+            
+            // Atur alarm maksimal 24 jam sebelumnya
+            if (timeUntilAlarm > 0 && timeUntilAlarm <= 24 * 60 * 60 * 1000) {
+                const alarmId = setTimeout(() => {
+                    showNotification(`Alarm: "${agenda.title}" dimulai sekarang!`);
+                    
+                    // Hapus alarm dari daftar setelah dijalankan
+                    alarms = alarms.filter(id => id !== alarmId);
+                }, timeUntilAlarm);
+                
+                alarms.push(alarmId);
+            }
+        }
+
+        // Fungsi untuk memeriksa apakah alarm aktif untuk agenda
+        function isAlarmActive(agenda) {
+            if (!agenda.alarm || !agenda.time || agenda.completed) return false;
+            
+            const now = new Date();
+            const agendaDateTime = new Date(`${agenda.date}T${agenda.time}`);
+            const timeDiff = agendaDateTime.getTime() - now.getTime();
+            
+            // Alarm aktif jika waktu agenda kurang dari 1 jam dari sekarang
+            return timeDiff > 0 && timeDiff <= 60 * 60 * 1000;
+        }
+
+        // Fungsi untuk menampilkan notifikasi
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            
+            // Putar suara notifikasi (jika browser mendukung)
+            try {
+                const audio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ');
+                audio.play();
+            } catch (e) {
+                console.log("Audio not supported");
+            }
+            
+            // Sembunyikan notifikasi setelah 5 detik
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+
+        // Fungsi untuk memperbarui tampilan hari ini
+        function updateTodayInfo() {
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateString = today.toLocaleDateString('id-ID', options);
+            
+            document.getElementById('todayDate').textContent = dateString;
+            
+            // Perbarui waktu setiap detik
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('id-ID');
+                document.getElementById('todayTime').textContent = timeString;
+            }
+            
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // Cek apakah hari ini adalah hari libur
+            const todayDateStr = today.toISOString().split('T')[0];
+            const todayHoliday = holidays.find(holiday => holiday.date === todayDateStr);
+            
+            const todayHolidayInfo = document.getElementById('todayHolidayInfo');
+            if (todayHoliday) {
+                todayHolidayInfo.textContent = `Hari ini adalah hari libur: ${todayHoliday.name}`;
+                todayHolidayInfo.style.color = 'var(--danger-color)';
+                todayHolidayInfo.style.fontWeight = 'bold';
+            } else {
+                todayHolidayInfo.textContent = 'Hari ini adalah hari kerja.';
+                todayHolidayInfo.style.color = '';
+                todayHolidayInfo.style.fontWeight = 'normal';
+            }
+        }
+
+        // Fungsi untuk memperbarui daftar hari libur
+        function updateHolidayList() {
+            const holidayList = document.getElementById('holidayList');
+            holidayList.innerHTML = '';
+            
+            // Filter hari libur untuk 3 bulan ke depan
+            const futureHolidays = holidays.filter(holiday => {
+                const holidayDate = new Date(holiday.date);
+                const threeMonthsFromNow = new Date();
+                threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
+                return holidayDate >= new Date() && holidayDate <= threeMonthsFromNow;
+            });
+            
+            // Jika tidak ada hari libur dalam 3 bulan ke depan, tampilkan beberapa yang akan datang
+            const holidaysToShow = futureHolidays.length > 0 ? futureHolidays : 
+                                  holidays.filter(h => new Date(h.date) >= new Date()).slice(0, 5);
+            
+            holidaysToShow.forEach(holiday => {
+                const holidayItem = document.createElement('div');
+                holidayItem.className = 'holiday-item';
+                
+                const holidayDate = document.createElement('div');
+                holidayDate.className = 'holiday-date';
+                
+                const dateObj = new Date(holiday.date);
+                const dateString = dateObj.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                holidayDate.textContent = dateString;
+                
+                const holidayName = document.createElement('div');
+                holidayName.className = 'holiday-name';
+                holidayName.textContent = holiday.name;
+                
+                const holidayDesc = document.createElement('div');
+                holidayDesc.textContent = holiday.description;
+                holidayDesc.style.fontSize = '0.9rem';
+                holidayDesc.style.color = '#666';
+                
+                holidayItem.appendChild(holidayDate);
+                holidayItem.appendChild(holidayName);
+                holidayItem.appendChild(holidayDesc);
+                
+                holidayList.appendChild(holidayItem);
+            });
+        }
+
+        // Fungsi untuk mengubah tema
+        function setTheme(theme) {
+            document.body.className = `${theme}-theme`;
+            selectedTheme = theme;
+            localStorage.setItem('calendarTheme', theme);
+        }
+
+        // Fungsi untuk mengatur alarm untuk semua agenda
+        function setupAllAlarms() {
+            // Hapus semua alarm yang ada
+            alarms.forEach(alarmId => clearTimeout(alarmId));
+            alarms = [];
+            
+            // Atur alarm untuk semua agenda yang belum selesai
+            agendaItems.forEach(agenda => {
+                if (agenda.alarm && !agenda.completed && agenda.time) {
+                    setAgendaAlarm(agenda);
+                }
+            });
+        }
+
+        // Inisialisasi aplikasi
+        function initApp() {
+            // Inisialisasi data agenda
+            initializeAgendaItems();
+            
+            // Atur tema dari localStorage atau default
+            const savedTheme = localStorage.getItem('calendarTheme');
+            if (savedTheme) {
+                setTheme(savedTheme);
+            }
+            
+            // Generate kalender untuk bulan ini
+            generateCalendar(currentMonth, currentYear);
+            
+            // Perbarui daftar agenda
+            updateAgendaList();
+            
+            // Perbarui informasi hari ini
+            updateTodayInfo();
+            
+            // Atur alarm untuk agenda
+            setupAllAlarms();
+            
+            // Event listener untuk navigasi bulan
+            document.getElementById('prevMonth').addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                generateCalendar(currentMonth, currentYear);
+            });
+            
+            document.getElementById('nextMonth').addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                generateCalendar(currentMonth, currentYear);
+            });
+            
+            document.getElementById('todayBtn').addEventListener('click', () => {
+                currentDate = new Date();
+                currentMonth = currentDate.getMonth();
+                currentYear = currentDate.getFullYear();
+                generateCalendar(currentMonth, currentYear);
+            });
+            
+            // Event listener untuk tab
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.dataset.tab;
+                    
+                    // Hapus kelas active dari semua tab
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Tambahkan kelas active ke tab yang diklik
+                    tab.classList.add('active');
+                    document.getElementById(`${tabId}Tab`).classList.add('active');
+                });
+            });
+            
+            // Event listener untuk form tambah agenda
+            document.getElementById('addAgendaForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const title = document.getElementById('agendaTitle').value;
+                const date = document.getElementById('agendaDate').value;
+                const time = document.getElementById('agendaTime').value;
+                const notes = document.getElementById('agendaNotes').value;
+                const alarm = document.getElementById('agendaAlarm').checked;
+                
+                addAgenda(title, date, time, notes, alarm);
+                
+                // Reset form
+                document.getElementById('addAgendaForm').reset();
+                document.getElementById('agendaDate').valueAsDate = new Date();
+                
+                // Tampilkan notifikasi
+                showNotification(`Agenda "${title}" berhasil ditambahkan!`);
+                
+                // Kembali ke tab daftar agenda
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.querySelector('[data-tab="agenda"]').classList.add('active');
+                document.getElementById('agendaTab').classList.add('active');
+            });
+            
+            // Event listener untuk tombol tema
+            document.getElementById('lightTheme').addEventListener('click', () => setTheme('light'));
+            document.getElementById('darkTheme').addEventListener('click', () => setTheme('dark'));
+            document.getElementById('blueTheme').addEventListener('click', () => setTheme('blue'));
+            document.getElementById('greenTheme').addEventListener('click', () => setTheme('green'));
+            
+            // Set nilai default untuk input tanggal
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            document.getElementById('agendaDate').value = todayStr;
+            document.getElementById('agendaDate').min = todayStr;
+        }
+
+        // Jalankan aplikasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
